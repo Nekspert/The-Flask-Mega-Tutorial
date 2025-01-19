@@ -1,0 +1,22 @@
+import pytest
+from microblog import app
+
+
+@pytest.fixture()
+def conf_app():
+    app.config.update(
+        {"TESTING": True}
+    )
+    yield app
+
+
+@pytest.fixture()
+def client(conf_app):
+    return conf_app.test_client()
+
+
+# @pytest.fixture()
+# def runner(conf_app):
+#     return app.test_cli_runner()
+
+
