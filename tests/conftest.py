@@ -2,7 +2,7 @@ import pytest
 from microblog import app
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def conf_app():
     app.config.update(
         {"TESTING": True}
