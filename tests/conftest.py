@@ -7,6 +7,10 @@ def conf_app():
     app.config.update(
         {"TESTING": True}
     )
+    app.config.update(
+        {'WTF_CSRF_ENABLED': False}
+    )
+
     yield app
 
 
