@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from werkzeug.security import generate_password_hash, check_password_hash
+from hashlib import md5
 from flask_login import UserMixin
 
 from app import db, login
@@ -19,11 +20,18 @@ class User(UserMixin, db.Model):
         back_populates="author"
     )
 
+    about_me: orm.Mapped[Optional[str]] = orm.mapped_column(sa.String(256))
+    last_seen: orm.Mapped[Optional[datetime]] = orm.mapped_column(default=lambda: datetime.now(timezone.utc))
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def __repr__(self):
         return f"<User {self.username}>"
