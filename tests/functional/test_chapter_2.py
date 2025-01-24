@@ -1,10 +1,10 @@
 def test_request_index(client):
-    response = client.get("/")
+    response = client.get("/", follow_redirects=True)
     assert response.status_code == 200
-    assert b"Microblog" in response.data
-    assert b"Hi," in response.data
+    assert len(response.history) == 1
+    assert response.request.path == "/login"
 
-    response = client.get("/index")
+    response = client.get("/index", follow_redirects=True)
     assert response.status_code == 200
-    assert b"Microblog" in response.data
-    assert b"Hi," in response.data
+    assert len(response.history) == 1
+    assert response.request.path == "/login"
