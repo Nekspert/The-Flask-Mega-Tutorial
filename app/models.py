@@ -117,8 +117,9 @@ class Post(db.Model):
     timestamp: orm.Mapped[datetime] = orm.mapped_column(index=True,
                                                         default=lambda: datetime.now(timezone.utc))
     user_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey(User.id), index=True)
-
     author: orm.Mapped[User] = orm.relationship(back_populates="posts")
+
+    language: orm.Mapped[Optional[str]] = orm.mapped_column(sa.String(5))
 
     def __repr__(self):
         return f"<Post {self.body}>"
