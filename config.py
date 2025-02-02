@@ -5,7 +5,7 @@ basedir = os.path.abspath(os.path.dirname(__name__))
 
 
 class Config:
-    load_dotenv()
+    load_dotenv(os.path.join(basedir, ".env"))
 
     SECRET_KEY = os.environ.get("SECRET_KEY") or "you-will-never-guess21_01_25"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(basedir, "app.db")
@@ -17,6 +17,6 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ["your-email@example.com"]
 
-    POSTS_PER_PAGE = 25
+    POSTS_PER_PAGE = 10
 
     LANGUAGES = ["en", "ru"]
