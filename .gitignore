@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Whoosh indexed file
+*.toc
+*.seg
+*WRITELOCK

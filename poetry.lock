@@ -947,6 +947,19 @@ MarkupSafe = ">=2.1.1"
 watchdog = ["watchdog (>=2.3)"]
 
 [[package]]
+name = "whoosh"
+version = "2.7.4"
+description = "Fast, pure-Python full text indexing, search, and spell checking library."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "Whoosh-2.7.4-py2.py3-none-any.whl", hash = "sha256:aa39c3c3426e3fd107dcb4bde64ca1e276a65a889d9085a6e4b54ba82420a852"},
+    {file = "Whoosh-2.7.4.tar.gz", hash = "sha256:7ca5633dbfa9e0e0fa400d3151a8a0c4bec53bd2ecedc0a67705b17565c31a83"},
+    {file = "Whoosh-2.7.4.zip", hash = "sha256:e0857375f63e9041e03fedd5b7541f97cf78917ac1b6b06c1fcc9b45375dda69"},
+]
+
+[[package]]
 name = "wtforms"
 version = "3.2.1"
 description = "Form validation and rendering for Python web development."
@@ -967,4 +980,4 @@ email = ["email-validator"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "d5019f05cd29a92536a8cd615c7214a0ecd76e93d834e38eb8b333276e460b2f"
+content-hash = "86f1d9e873dd0bb3c06a5d54431dd899c5dfb3f2c5b8c3e9482ea04bf097f378"
