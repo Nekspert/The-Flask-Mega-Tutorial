@@ -9,22 +9,9 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_babel import Babel, lazy_gettext as _l
-from whoosh.index import create_in, exists_in
-from whoosh.fields import Schema, TEXT, ID
 
 from config import Config
-
-
-def create_whoosh_index(index_dir, index_name, schema):
-    index_path = os.path.join(index_dir, index_name)
-
-    if not os.path.exists(index_path):
-        os.makedirs(index_path)
-        create_in(index_path, schema=schema)
-    elif not exists_in(index_path):
-        create_in(index_path, schema)
-
-    return index_path
+from app.search import create_whoosh_dir
 
 
 def get_locale():
@@ -44,6 +31,7 @@ babel = Babel()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.whoosh_dir = create_whoosh_dir(app.config["WHOOSH_INDEX_DIR"])
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -51,12 +39,6 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
-
-    schema = Schema(
-        id=ID(stored=True, unique=True),
-        body=TEXT(stored=True)
-    )
-    app.whoosh_path = create_whoosh_index(app.config["WHOOSH_INDEX_DIR"], "Post", schema)
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
