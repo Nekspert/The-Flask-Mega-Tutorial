@@ -1,5 +1,5 @@
 def test_request_login_get(client):
-    response = client.get("/login")
+    response = client.get("/auth/login")
     assert response.status_code == 200
     assert b"Username" in response.data
     assert b"Password" in response.data
@@ -7,7 +7,7 @@ def test_request_login_get(client):
 
 
 def test_request_login_post(client):
-    response = client.post("/login", follow_redirects=True,
+    response = client.post("/auth/login", follow_redirects=True,
                            data={
                                "username": "user",
                                "password": "password",
@@ -17,4 +17,4 @@ def test_request_login_post(client):
 
     assert response.status_code == 200
     assert len(response.history) == 1
-    assert response.request.path == "/login"
+    assert response.request.path == "/auth/login"

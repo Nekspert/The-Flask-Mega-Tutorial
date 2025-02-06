@@ -1,24 +1,37 @@
 import os
+import shutil
 
 import pytest
 
-from app import app, db
+from config import Config
+from app import create_app, db
 from app.models import User
+from app.search import create_whoosh_dir
 
 
-@pytest.fixture(scope="session")
-def conf_app():
-    app.config.update(
-        {"TESTING": True}
-    )
-    app.config.update(
-        {'WTF_CSRF_ENABLED': False}
-    )
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    WTF_CSRF_ENABLED = False
+    WHOOSH_INDEX_DIR = "test"
 
+
+@pytest.fixture(scope="session", autouse=True)
+def delete_logs():
+    if os.path.exists("logs"):
+        shutil.rmtree("logs")
+
+
+@pytest.fixture(scope="module")
+def conf_app(delete_logs):
+    app = create_app(TestConfig)
     yield app
 
+    if os.path.exists(app.whoosh_dir):
+        shutil.rmtree(app.whoosh_dir)
 
-@pytest.fixture(scope="session")
+
+@pytest.fixture(scope="module")
 def client(conf_app):
     with conf_app.app_context():
         db.create_all()
@@ -29,13 +42,10 @@ def client(conf_app):
         db.drop_all()
         db.engine.dispose()
 
-    if os.path.exists(conf_app.config["SQLALCHEMY_DATABASE_URI"].split("///")[1]):
-        os.remove(conf_app.config["SQLALCHEMY_DATABASE_URI"].rsplit("///")[1])
-
 
 @pytest.fixture(scope="module")
 def user():
-    yield User(username="user", email="email@example.com")
+    yield User(username="user_unique", email="email@example.com")
 
 # @pytest.fixture()
 # def runner(conf_app):

@@ -5,7 +5,7 @@ def test_explore_login_required_user(client):
     response = client.get("/explore", follow_redirects=True)
     assert response.status_code == 200
     assert len(response.history) == 1
-    assert response.request.path == "/login"
+    assert response.request.path == "/auth/login"
 
 
 def test_explore_authentication(client):
@@ -16,7 +16,7 @@ def test_explore_authentication(client):
 
     assert next_url == "/explore"
 
-    response = client.post('/login',
+    response = client.post('/auth/login',
                            data={
                                "username": "Neksper",
                                "password": "1234",
