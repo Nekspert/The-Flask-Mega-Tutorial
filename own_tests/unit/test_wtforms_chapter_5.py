@@ -2,32 +2,32 @@ from app.auth import forms
 
 
 def test_valid_register_form(client):
-    with client:
+    with client.application.test_request_context():
         form = forms.RegistrationForm(username="user", email="user@example.com", password="1234", password2="1234")
-    assert form.validate() is True
+        assert form.validate() is True
     assert len(form.errors) == 0
 
 
 def test_missing_username(client):
-    with client:
+    with client.application.test_request_context():
         form = forms.RegistrationForm(email="user@example.com", password="1234", password2="1234")
-    assert form.validate() is False
+        assert form.validate() is False
     assert len(form.errors) == 1 and {"username": ["This field is required."]} == form.errors
     assert ["This field is required."] == form.username.errors
 
 
 def test_missing_email(client):
-    with client:
+    with client.application.test_request_context():
         form = forms.RegistrationForm(username="user", password="1234", password2="1234")
-    assert form.validate() is False
+        assert form.validate() is False
     assert len(form.errors) == 1 and {"email": ["This field is required."]} == form.errors
     assert ["This field is required."] == form.email.errors
 
 
 def test_incorrect_email(client):
-    with client:
+    with client.application.test_request_context():
         form = forms.RegistrationForm(username="user", email="user.com", password="1234", password2="1234")
-    assert form.validate() is False
+        assert form.validate() is False
     assert len(form.errors) == 1 and {"email": ["Invalid email address."]} == form.errors
     assert ["Invalid email address."] == form.email.errors
 
@@ -43,8 +43,8 @@ def test_missing_password(client):
 
 
 def test_missing_password2(client):
-    with client:
+    with client.application.test_request_context():
         form = forms.RegistrationForm(username="user", email="user@example.com", password="1234")
-    assert form.validate() is False
+        assert form.validate() is False
     assert len(form.errors) == 1 and {"password2": ["This field is required."]} == form.errors
     assert ["This field is required."] == form.password2.errors
