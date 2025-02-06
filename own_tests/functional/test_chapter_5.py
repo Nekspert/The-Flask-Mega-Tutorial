@@ -1,5 +1,5 @@
 def test_request_register_get(client):
-    response = client.get("/register")
+    response = client.get("/auth/register")
     assert response.status_code == 200
     assert b"Register" in response.data
     assert b"Username" in response.data
@@ -9,7 +9,7 @@ def test_request_register_get(client):
 
 
 def test_request_register_post(client):
-    response = client.post("/register", follow_redirects=True,
+    response = client.post("/auth/register", follow_redirects=True,
                            data={
                                "username": "user4",
                                "email": "user4@example.com",
@@ -18,4 +18,4 @@ def test_request_register_post(client):
                            })
     assert response.status_code == 200
     assert len(response.history) == 1
-    assert response.request.path == "/login"
+    assert response.request.path == "/auth/login"
