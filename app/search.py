@@ -63,6 +63,9 @@ def query_index(obj, query, page, per_page):
         return [], 0
 
     current_index_path = os.path.join(current_app.whoosh_dir, obj.__tablename__)
+    if not os.path.exists(current_index_path):
+        return [], 0
+
     ix = open_dir(current_index_path)
 
     with ix.searcher() as searcher:
