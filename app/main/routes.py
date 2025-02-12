@@ -151,7 +151,7 @@ def unfollow(username):
             return redirect(url_for("main.user", username=username))
         current_user.unfollow(user)
         db.session.commit()
-        flash(_("You are not following %(username)s"), username=username)
+        flash(_("You are not following %(username)s", username=username))
         return redirect(url_for("main.user", username=username))
     return redirect(url_for("main.index"))
 
@@ -163,3 +163,11 @@ def translate_text():
     return {"text": translate(data["text"],
                               data["source_language"],
                               data["dest_language"])}
+
+
+@bp.route("/user/<username>/popup")
+@login_required
+def user_popup(username):
+    user = db.first_or_404(sa.select(User).where(User.username == username))
+    form = EmptyForm()
+    return render_template("user_popup.html", form=form, user=user)
