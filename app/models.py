@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from time import time
 from datetime import datetime, timezone
@@ -71,10 +72,17 @@ class User(UserMixin, db.Model):
     username: orm.Mapped[str] = orm.mapped_column(sa.String(64), index=True, unique=True)
     email: orm.Mapped[str] = orm.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: orm.Mapped[Optional[str]] = orm.mapped_column(sa.String(256))
+    last_message_read_time: orm.Mapped[Optional[datetime]]
 
     posts: orm.WriteOnlyMapped["Post"] = orm.relationship(
         back_populates="author"
     )
+    messages_sent: orm.WriteOnlyMapped["Message"] = orm.relationship(
+        foreign_keys="Message.sender_id", back_populates="author")
+    messages_received: orm.WriteOnlyMapped["Message"] = orm.relationship(
+        foreign_keys="Message.recipient_id", back_populates="recipient")
+    notifications: orm.WriteOnlyMapped["Notification"] = orm.relationship(
+        back_populates="user")
 
     about_me: orm.Mapped[Optional[str]] = orm.mapped_column(sa.String(256))
     last_seen: orm.Mapped[Optional[datetime]] = orm.mapped_column(default=lambda: datetime.now(timezone.utc))
@@ -152,6 +160,20 @@ class User(UserMixin, db.Model):
             return
         return db.session.get(User, id)
 
+    def unread_message_count(self):
+        last_read_time = self.last_message_read_time or datetime(1990, 1, 1)
+        query = sa.select(Message).where(Message.recipient == self,
+                                         Message.timestamp > last_read_time)
+        return db.session.scalar(sa.select(sa.func.count()).select_from(
+            query.subquery()))
+
+    def add_notification(self, name, data):
+        db.session.execute(self.notifications.delete().where(
+            Notification.name == name))
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
+
     def __repr__(self):
         return f"<User {self.username}>"
 
@@ -160,7 +182,7 @@ class Post(SearchableMixin, db.Model):
     __searchable__ = ["body"]
 
     id: orm.Mapped[int] = orm.mapped_column(primary_key=True)
-    body: orm.Mapped[str] = orm.mapped_column(sa.String(140))
+    body: orm.Mapped[str] = orm.mapped_column(sa.String(256))
     timestamp: orm.Mapped[datetime] = orm.mapped_column(index=True,
                                                         default=lambda: datetime.now(timezone.utc))
     user_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey(User.id), index=True)
@@ -170,6 +192,42 @@ class Post(SearchableMixin, db.Model):
 
     def __repr__(self):
         return f"<Post {self.body}>"
+
+
+class Message(db.Model):
+    id: orm.Mapped[int] = orm.mapped_column(primary_key=True)
+    sender_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey(User.id),
+                                                   index=True)
+    recipient_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey(User.id),
+                                                      index=True)
+    body: orm.Mapped[str] = orm.mapped_column(sa.String(256))
+    timestamp: orm.Mapped[datetime] = orm.mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc))
+
+    author: orm.Mapped[User] = orm.relationship(
+        foreign_keys="Message.sender_id",
+        back_populates="messages_sent")
+
+    recipient: orm.Mapped[User] = orm.relationship(
+        foreign_keys="Message.recipient_id",
+        back_populates="messages_received")
+
+    def __repr__(self):
+        return f"<Message: {self.body}>"
+
+
+class Notification(db.Model):
+    id: orm.Mapped[int] = orm.mapped_column(primary_key=True)
+    name: orm.Mapped[str] = orm.mapped_column(sa.String(128), index=True)
+    user_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey(User.id),
+                                                 index=True)
+    timestamp: orm.Mapped[float] = orm.mapped_column(index=True, default=time)
+    payload_json: orm.Mapped[str] = orm.mapped_column(sa.Text)
+
+    user: orm.Mapped[User] = orm.relationship(back_populates="notifications")
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 
 @login.user_loader
