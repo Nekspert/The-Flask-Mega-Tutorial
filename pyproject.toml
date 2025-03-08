@@ -5,7 +5,6 @@ description = ""
 authors = [
     { name = "Timur Berezin", email = "corporate.timur01@gmail.com" }
 ]
-package-mode = false
 
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
@@ -25,6 +24,8 @@ dependencies = [
     "langdetect (>=1.0.9,<2.0.0)",
     "requests (>=2.32.3,<3.0.0)",
     "whoosh (>=2.7.4,<3.0.0)",
+    "rq (>=2.1.0,<3.0.0)",
+    "click (>=8.1.8,<9.0.0)",
 ]
 
 [tool.poetry]

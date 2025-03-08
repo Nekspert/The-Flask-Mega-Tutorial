@@ -22,3 +22,5 @@ class Config:
     LANGUAGES = ["en", "ru"]
 
     WHOOSH_INDEX_DIR = os.environ.get("WHOOSH_INDEX_DIR")
+
+    REDIS_URL = os.environ.get("REDIS_URL") or "redis://"
